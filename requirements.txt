@@ -1,0 +1,10 @@
+
+pandas
+ccxt
+numpy
+seaborn
+plotly
+rich
+nbformat>=4.2.0
+# -- Notebooks
+ipywidgets

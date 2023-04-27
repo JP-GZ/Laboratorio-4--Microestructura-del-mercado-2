@@ -18,14 +18,12 @@ async def async_client(exchange_id, run_time: int, symbol: str):
             await exchange.load_markets()
             market = exchange.market(symbol)
             orderbook = await exchange.fetch_order_book(market["symbol"])
+            ohlc = await exchange.fetch_ohlcv(symbol=market["symbol"], timeframe='1m')
             datetime = exchange.iso8601(exchange.milliseconds())
             # Unpack values
             bid = orderbook['bids'][0][0] if len(orderbook['bids']) > 0 else None
             ask = orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
             spread = np.round(ask - bid, 10)
-            # OHLC
-            ohlc = await exchange.fetch_ohlcv(symbol=symbol, timeframe='1m', limit=1)
-
             # VWAP calculation
             bids = orderbook["bids"]
             asks = orderbook["asks"]
@@ -58,7 +56,7 @@ async def async_client(exchange_id, run_time: int, symbol: str):
             #         break
             #     archivo.write(entrada + "\n")
             # End time
-            time.sleep(1)
+            #time.sleep(1)
             time_2 = time.time()
             time_f = round(time_2 - time_1, 4)
         except Exception as e:
@@ -75,11 +73,3 @@ async def multi_orderbooks(exchanges, run_time: int, symbol: str):
     ]
     orderbooks = await asyncio.gather(*input_coroutines, return_exceptions=True)
     return orderbooks
-
-
-async def orderbooks_df (exchanges:list,run_time:int,symbol:str): # json:bool
-    data = asyncio.run(multi_orderbooks(exchanges, run_time=run_time, symbol=symbol))
-    data = [item for sublist in data for item in sublist]
-    data = pd.DataFrame(data)
-    data.set_index('exchange', inplace=True)
-    return data

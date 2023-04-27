@@ -4,7 +4,7 @@ import asyncio
 import ccxt.async_support as ccxta
 import time
 import pandas as pd
-import numpy as pd
+import numpy as np
 
 async def async_client(exchange_id, run_time: int, symbol: str):
     orderbook = None
@@ -17,6 +17,7 @@ async def async_client(exchange_id, run_time: int, symbol: str):
         try:
             await exchange.load_markets()
             market = exchange.market(symbol)
+            await asyncio.sleep(15) 
             orderbook = await exchange.fetch_order_book(market["symbol"])
             ohlc = await exchange.fetch_ohlcv(symbol=market["symbol"], timeframe='1m')
             datetime = exchange.iso8601(exchange.milliseconds())
@@ -62,7 +63,7 @@ async def async_client(exchange_id, run_time: int, symbol: str):
         except Exception as e:
             time_2 = time.time()
             time_f = round(time_2 - time_1, 4)
-            print(type(e)._name_, str(e))
+            print(type(e).__name__, str(e))
     await exchange.close()
     return ob
 

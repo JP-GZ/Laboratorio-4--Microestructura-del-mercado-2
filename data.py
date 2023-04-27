@@ -4,7 +4,7 @@ nest_asyncio.apply()
 import ccxt.async_support as ccxta
 import time
 import pandas as pd
-
+import numpy as pd
 
 async def async_client(exchange_id, run_time: int, symbol: str):
     orderbook = None
@@ -13,6 +13,7 @@ async def async_client(exchange_id, run_time: int, symbol: str):
     time_f = 0
     ob = []
     while time_f <= run_time:
+        print(f"Time {time_f} / {run_time}")
         try:
             await exchange.load_markets()
             market = exchange.market(symbol)
@@ -21,6 +22,7 @@ async def async_client(exchange_id, run_time: int, symbol: str):
             # Unpack values
             bid = orderbook['bids'][0][0] if len(orderbook['bids']) > 0 else None
             ask = orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
+            spread = np.round(ask - bid, 10)
             # OHLC
             ohlc = await exchange.fetch_ohlcv(symbol=symbol, timeframe='1m', limit=1)
 
@@ -46,16 +48,24 @@ async def async_client(exchange_id, run_time: int, symbol: str):
                     "total_vol" : total_vol,
                     "Mid_Price": (ohlc[0][2] + ohlc[0][3]) / 2,
                     "VWAP": vwap,
+                    "Close_Price": ohlc[0][4],
+                    "spread" : spread,
                 }
             )
+            # with open(r"files\archivo.txt", "w") as archivo:
+            #     entrada = input(ob)
+            #     if entrada.lower() == "salir":
+            #         break
+            #     archivo.write(entrada + "\n")
             # End time
+            time.sleep(.5)
             time_2 = time.time()
             time_f = round(time_2 - time_1, 4)
         except Exception as e:
             time_2 = time.time()
             time_f = round(time_2 - time_1, 4)
             print(type(e)._name_, str(e))
-    await (exchange.close())
+    await exchange.close()
     return ob
 
 

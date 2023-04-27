@@ -1,6 +1,6 @@
 import asyncio
-import nest_asyncio
-nest_asyncio.apply()
+# import nest_asyncio
+# nest_asyncio.apply()
 import ccxt.async_support as ccxta
 import time
 import pandas as pd
@@ -58,7 +58,7 @@ async def async_client(exchange_id, run_time: int, symbol: str):
             #         break
             #     archivo.write(entrada + "\n")
             # End time
-            time.sleep(.5)
+            time.sleep(1)
             time_2 = time.time()
             time_f = round(time_2 - time_1, 4)
         except Exception as e:
